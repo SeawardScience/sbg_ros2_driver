@@ -622,6 +622,14 @@ public:
   const geometry_msgs::msg::PointStamped createRosPointStampedMessage(const sbg_driver::msg::SbgEkfNav& ref_sbg_ekf_msg) const;
 
   /*!
+   * Create a ROS standard PointStamped message from SBG messages.
+   *
+   * \param[in] ref_sbg_ekf_msg     SBG-ROS EkfNav message.
+   * \return                        ROS standard NavSatFix message.
+   */
+  const sensor_msgs::msg::NavSatFix createRosNavSatFixMessage(const sbg_driver::msg::SbgEkfNav& ref_sbg_ekf_msg) const;
+
+  /*!
    * Create a ROS standard timeReference message for a UTC time.
    * 
    * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.

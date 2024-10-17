@@ -261,6 +261,7 @@ void MessagePublisher::defineRosStandardPublishers(rclcpp::Node& ref_ros_node_ha
   if (m_sbgEkfNav_pub_)
   {
     m_pos_ecef_pub_ = ref_ros_node_handle.create_publisher<geometry_msgs::msg::PointStamped>("imu/pos_ecef", m_max_messages_);
+    m_pos_llh_pub_ = ref_ros_node_handle.create_publisher<sensor_msgs::msg::NavSatFix>("imu/ekf/fix", m_max_messages_);
   }
   else
   {
@@ -413,6 +414,10 @@ void MessagePublisher::publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_
   if (m_pos_ecef_pub_)
   {
     m_pos_ecef_pub_->publish(m_message_wrapper_.createRosPointStampedMessage(m_sbg_ekf_nav_message_));
+  }
+  if (m_pos_llh_pub_)
+  {
+    m_pos_llh_pub_->publish(m_message_wrapper_.createRosNavSatFixMessage(m_sbg_ekf_nav_message_));
   }
   processRosVelMessage();
 }

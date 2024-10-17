@@ -645,10 +645,10 @@ const sbg_driver::msg::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const 
 
   if (m_use_enu_)
   {
-    ekf_quat_message.quaternion.x = ref_log_ekf_quat.quaternion[1];
-    ekf_quat_message.quaternion.y = -ref_log_ekf_quat.quaternion[2];
-    ekf_quat_message.quaternion.z = -ref_log_ekf_quat.quaternion[3];
-    ekf_quat_message.quaternion.w = ref_log_ekf_quat.quaternion[0];
+    auto ned2enu = tf2::Matrix3x3(0,1,0,1,0,0,0,0,-1);
+    tf2::Quaternion q_ned2enu, qbody2ned(ref_log_ekf_quat.quaternion[1], ref_log_ekf_quat.quaternion[2], ref_log_ekf_quat.quaternion[3], ref_log_ekf_quat.quaternion[0]);
+    ned2enu.getRotation(q_ned2enu);
+    ekf_quat_message.quaternion = tf2::toMsg(q_ned2enu*qbody2ned);
   }
   else
   {
@@ -1242,6 +1242,20 @@ const geometry_msgs::msg::PointStamped MessageWrapper::createRosPointStampedMess
   point_stamped_message.point.z = ((pow(polar_radius, 2) / pow(equatorial_radius, 2)) * prime_vertical_radius + ref_sbg_ekf_msg.altitude) * sin(latitude);
 
   return point_stamped_message;
+}
+
+const sensor_msgs::msg::NavSatFix MessageWrapper::createRosNavSatFixMessage(const sbg_driver::msg::SbgEkfNav& ref_sbg_ekf_msg) const{
+  sensor_msgs::msg::NavSatFix fix_message;
+
+  fix_message.header = createRosHeader(ref_sbg_ekf_msg.time_stamp);
+
+  fix_message.latitude = ref_sbg_ekf_msg.latitude;
+  fix_message.longitude = ref_sbg_ekf_msg.longitude;
+  fix_message.altitude = ref_sbg_ekf_msg.altitude + ref_sbg_ekf_msg.undulation;
+
+  fix_message.status.status = fix_message.status.STATUS_FIX;
+
+  return fix_message;
 }
 
 const sensor_msgs::msg::TimeReference MessageWrapper::createRosUtcTimeReferenceMessage(const sbg_driver::msg::SbgUtcTime& ref_sbg_utc_msg) const
